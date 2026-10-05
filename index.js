@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const qrcode = require('qrcode-terminal');
 const http = require('http');
 
-// إنشاء سيرفر وهمي لإرضاء Render ومنعه من إغلاق التطبيق
+// سيرفر وهمي لإرضاء منصة Render
 const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -12,7 +12,9 @@ http.createServer((req, res) => {
     console.log(`Web server listening on port ${PORT}`);
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// مفتاح Gemini API الخاص بك
+const GEMINI_API_KEY = "AQ.Ab8RN6JTgusFPUAhfYGiAK4sJKoMoesYFdwKE1jmk1PCZehinA";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
@@ -37,7 +39,6 @@ async function connectToWhatsApp() {
         
         if (connection === 'close') {
             const shouldReconnect = (lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log('Connection closed, reconnecting:', shouldReconnect);
             if (shouldReconnect) connectToWhatsApp();
         } else if (connection === 'open') {
             console.log('CONNECTED TO WHATSAPP SUCCESSFULLY!');
