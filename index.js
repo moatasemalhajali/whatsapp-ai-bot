@@ -1,6 +1,16 @@
 const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const qrcode = require('qrcode-terminal');
+const http = require('http');
+
+// إنشاء سيرفر وهمي لإرضاء Render ومنعه من إغلاق التطبيق
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('WhatsApp AI Bot is Running!');
+}).listen(PORT, () => {
+    console.log(`Web server listening on port ${PORT}`);
+});
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -19,15 +29,18 @@ async function connectToWhatsApp() {
         const { connection, lastDisconnect, qr } = update;
         
         if (qr) {
+            console.log('\n======================================');
             console.log('--- SCAN THIS QR CODE BELOW ---');
+            console.log('======================================\n');
             qrcode.generate(qr, { small: true });
         }
         
         if (connection === 'close') {
             const shouldReconnect = (lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('Connection closed, reconnecting:', shouldReconnect);
             if (shouldReconnect) connectToWhatsApp();
         } else if (connection === 'open') {
-            console.log('Connected to WhatsApp successfully!');
+            console.log('CONNECTED TO WHATSAPP SUCCESSFULLY!');
         }
     });
 
